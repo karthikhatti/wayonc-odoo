@@ -1,14 +1,67 @@
 #!/bin/bash
 
-# Create a folder named "my_folder" if it doesn't exist
-mkdir -p my_folder
+# Function to check command execution status
+check_status() {
+    if [ $? -ne 0 ]; then
+        echo "Error: Command execution failed. Exiting..."
+        exit 1
+    fi
+}
 
-# Optional: Provide a message to indicate that the folder has been created
-echo "Folder 'my_folder' created successfully."
-#!/bin/bash
+# Update package list
+sudo apt update &&
+check_status
 
-# Create a folder named "my_folder" if it doesn't exist
-mkdir -p my_folder
+# Upgrade installed packages
+sudo apt upgrade -y
+check_status
 
-# Optional: Provide a message to indicate that the folder has been created
-echo "Folder 'my_folder' created successfully."
+# Install required packages
+sudo apt install -y git python3-pip libldap2-dev libpq-dev libsasl2-dev postgresql python3.10-venv
+check_status
+
+# Install pip for Python 3
+sudo apt install -y python3-pip
+check_status
+
+# Install PostgreSQL
+sudo apt install -y postgresql
+check_status
+
+# Create PostgreSQL user
+sudo -u postgres createuser -s wayonctechdbtest
+check_status
+sudo -u postgres psql -c "alter role wayonctechdbtest with password 'P@ssw0rd';"
+check_status
+
+# Clone Odoo repository
+mkdir odoo17
+cd odoo17
+git clone https://www.github.com/odoo/odoo --depth 1 --branch 17.0 odoo17
+check_status
+
+# Set up Python virtual environment
+python3.10 -m venv vwayonctest
+check_status
+source vwayonctest/bin/activate
+check_status
+
+# Install Odoo dependencies
+pip install wheel
+pip install -r odoo17/requirements.txt
+check_status
+
+# Configure Odoo
+nano odoo17/debian/odoo.conf  # Edit the configuration file as required
+
+# Update PostgreSQL configuration
+sudo nano /etc/postgresql/14/main/pg_hba.conf
+check_status
+
+# Restart PostgreSQL
+sudo systemctl restart postgresql
+check_status
+
+# Run Odoo
+python3.10 odoo17/odoo-bin -c odoo17/debian/odoo.conf
+check_status
