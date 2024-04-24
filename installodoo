@@ -37,7 +37,7 @@ check_status
 # Clone Odoo repository
 mkdir odoo17ee
 cd odoo17ee
-git clone https://www.github.com/odoo/odoo --depth 1 --branch master odoo17ee
+git clone https://github.com/karthikhatti/Odoo17_EE --depth 1 --branch master odoo17ee
 check_status
 
 # Set up Python virtual environment
